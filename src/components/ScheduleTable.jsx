@@ -1,13 +1,13 @@
 // 📁 src/components/ScheduleTable.jsx
 import React from "react";
-import { PencilSquare, Trash, Eye } from "react-bootstrap-icons";
+import { PencilSquare, Trash, Eye, CheckCircle } from "react-bootstrap-icons";
 import "../styles/ScheduleTable.css";
 
-const ScheduleTable = ({ schedules, onEdit, onDelete, onView }) => {
+const ScheduleTable = ({ schedules, onEdit, onDelete, onView, onApproveCancel }) => {
   return (
     <div className="card shadow-sm mt-4">
-      <div className="card-header bg-light d-flex justify-content-between align-items-center">
-        <h3 className="mb-0 fw-bold">Current Schedules</h3>
+      <div className="card-header bg-light">
+        <h5 className="mb-0 fw-bold">Current Schedules</h5>
       </div>
 
       <div className="table-responsive">
@@ -18,8 +18,8 @@ const ScheduleTable = ({ schedules, onEdit, onDelete, onView }) => {
               <th>Patient</th>
               <th>Bed</th>
               <th>Date</th>
-              <th>Start Time</th>
-              <th>End Time</th>
+              <th>Start</th>
+              <th>End</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
@@ -37,13 +37,11 @@ const ScheduleTable = ({ schedules, onEdit, onDelete, onView }) => {
                   <td>
                     <span
                       className={`badge ${
-                        s.status === "Scheduled"
+                        s.status.includes("Scheduled")
                           ? "bg-info text-dark"
-                          : s.status === "Completed"
+                          : s.status.includes("Completed")
                           ? "bg-success"
-                          : s.status === "Cancelled"
-                          ? "bg-danger"
-                          : "bg-secondary"
+                          : "bg-danger"
                       }`}
                     >
                       {s.status}
@@ -63,11 +61,28 @@ const ScheduleTable = ({ schedules, onEdit, onDelete, onView }) => {
                       <PencilSquare size={16} />
                     </button>
                     <button
-                      className="btn btn-sm btn-outline-danger"
+                      className="btn btn-sm btn-outline-danger me-2"
                       onClick={() => onDelete(s.id)}
                     >
                       <Trash size={16} />
                     </button>
+                    {s.status === "Cancelled" && (
+                      <button
+                        className="btn btn-sm btn-outline-success"
+                        onClick={() => onApproveCancel(s.id)}
+                      >
+                        <CheckCircle size={16} /> Approve
+                      </button>
+                    )}
+                    { s.status === "Cancel Requested" && (
+                        <button
+                            className="btn btn-sm btn-outline-danger me-2"
+                            onClick={() => onApproveCancel(s)}
+                        >
+                            Approve Cancel
+                        </button>
+                    )}
+
                   </td>
                 </tr>
               ))
