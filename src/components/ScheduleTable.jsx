@@ -25,75 +25,77 @@ const ScheduleTable = ({ schedules, onEdit, onDelete, onView, onApproveCancel })
             </tr>
           </thead>
           <tbody>
-            {schedules.length > 0 ? (
-              schedules.map((s, index) => (
-                <tr key={s.id}>
-                  <td>{index + 1}</td>
-                  <td>{s.patient}</td>
-                  <td>{s.bed}</td>
-                  <td>{s.date}</td>
-                  <td>{s.startTime}</td>
-                  <td>{s.endTime}</td>
-                  <td>
-                    <span
-                      className={`badge ${
-                        s.status.includes("Scheduled")
-                          ? "bg-info text-dark"
-                          : s.status.includes("Completed")
-                          ? "bg-success"
-                          : "bg-danger"
-                      }`}
-                    >
-                      {s.status}
-                    </span>
-                  </td>
-                  <td>
-                    <button
-                      className="btn btn-sm btn-outline-primary me-2"
-                      onClick={() => onView(s)}
-                    >
-                      <Eye size={16} />
-                    </button>
-                    <button
-                      className="btn btn-sm btn-outline-warning me-2"
-                      onClick={() => onEdit(s)}
-                    >
-                      <PencilSquare size={16} />
-                    </button>
-                    <button
-                      className="btn btn-sm btn-outline-danger me-2"
-                      onClick={() => onDelete(s.id)}
-                    >
-                      <Trash size={16} />
-                    </button>
-                    {s.status === "Cancelled" && (
-                      <button
-                        className="btn btn-sm btn-outline-success"
-                        onClick={() => onApproveCancel(s.id)}
-                      >
-                        <CheckCircle size={16} /> Approve
-                      </button>
-                    )}
-                    { s.status === "Cancel Requested" && (
-                        <button
-                            className="btn btn-sm btn-outline-danger me-2"
-                            onClick={() => onApproveCancel(s)}
-                        >
-                            Approve Cancel
-                        </button>
-                    )}
+  {schedules.length > 0 ? (
+    schedules.map((s, index) => (
+      <tr key={s._id}>
+        <td>{index + 1}</td>
+        <td>
+          {s.patient.firstName} {s.patient.lastName} (MRN: {s.patient.mrn})
+        </td>
+        <td>{s.station || s.bed}</td>
+        <td>{new Date(s.date).toLocaleDateString()}</td>
+        <td>{s.startTime}</td>
+        <td>{s.endTime}</td>
+        <td>
+          <span
+            className={`badge ${
+              s.status.includes("Scheduled")
+                ? "bg-info text-dark"
+                : s.status.includes("Completed")
+                ? "bg-success"
+                : "bg-danger"
+            }`}
+          >
+            {s.status}
+          </span>
+        </td>
+        <td>
+          <button
+            className="btn btn-sm btn-outline-primary me-2"
+            onClick={() => onView(s)}
+          >
+            <Eye size={16} />
+          </button>
+          <button
+            className="btn btn-sm btn-outline-warning me-2"
+            onClick={() => onEdit(s)}
+          >
+            <PencilSquare size={16} />
+          </button>
+          <button
+            className="btn btn-sm btn-outline-danger me-2"
+            onClick={() => onDelete(s._id)}
+          >
+            <Trash size={16} />
+          </button>
+          {s.status === "Cancelled" && (
+            <button
+              className="btn btn-sm btn-outline-success"
+              onClick={() => onApproveCancel(s._id)}
+            >
+              <CheckCircle size={16} /> Approve
+            </button>
+          )}
+          {s.status === "Cancel Requested" && (
+            <button
+              className="btn btn-sm btn-outline-danger me-2"
+              onClick={() => onApproveCancel(s)}
+            >
+              Approve Cancel
+            </button>
+          )}
+        </td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan="8" className="text-muted py-3">
+        No schedules found
+      </td>
+    </tr>
+  )}
+</tbody>
 
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="8" className="text-muted py-3">
-                  No schedules found
-                </td>
-              </tr>
-            )}
-          </tbody>
         </table>
       </div>
     </div>

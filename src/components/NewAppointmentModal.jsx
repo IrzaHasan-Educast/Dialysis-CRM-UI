@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Button, Form, ProgressBar } from "react-bootstrap";
+// import { getAllPatients } from "../../services/api";
 
-const NewAppointmentModal = ({ show, handleClose, handleSave, editMode, existingData }) => {
+const NewAppointmentModal = ({
+  show,
+  handleClose,
+  handleSave,
+  editMode,
+  existingData,
+}) => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     patientId: "",
@@ -19,35 +26,87 @@ const NewAppointmentModal = ({ show, handleClose, handleSave, editMode, existing
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredPatients, setFilteredPatients] = useState([]);
 
-  // 🔹 Dummy patient data (replace with API later)
-useEffect(() => {
-  if (editMode && existingData) {
-    setFormData({
-      patientId: existingData.patientId || "",
-      patientName: existingData.patient || "",
-      gender: existingData.gender || "",
-      phone: existingData.phone || "",
-      date: existingData.date || "",
-      startTime: existingData.startTime || "",
-      endTime: existingData.endTime || "",
-      bed: existingData.bed || "",
-      type: existingData.type || "Dialysis",
-    });
-    setStep(2); // Directly go to step 2 when editing
-  }
-}, [editMode, existingData]);
+  // // 🔹 Load Patients from API
+  // useEffect(() => {
+  //   const fetchPatients = async () => {
+  //     try {
+  //       const data = await getAllPatients();
+  //       const formatted = data.map((p) => ({
+  //         id: p.id,
+  //         name: p.fullName,
+  //         gender: p.gender,
+  //         phone: p.phone,
+  //       }));
+  //       setPatients(formatted);
+  //     } catch (error) {
+  //       console.error("Error fetching patients:", error);
+  //     }
+  //   };
 
-  // 🔍 Handle search
+  //   fetchPatients();
+  // }, []);
+
+  // // 🔹 Populate data in edit mode
+  // useEffect(() => {
+  //   if (editMode && existingData) {
+  //     setFormData({
+  //       patientId: existingData.patientId || "",
+  //       patientName: existingData.patient || "",
+  //       gender: existingData.gender || "",
+  //       phone: existingData.phone || "",
+  //       date: existingData.date || "",
+  //       startTime: existingData.startTime || "",
+  //       endTime: existingData.endTime || "",
+  //       bed: existingData.bed || "",
+  //       type: existingData.type || "Dialysis",
+  //     });
+  //     setStep(2); // Skip to step 2 for editing
+  //   }
+  // }, [editMode, existingData]);
+
+// 🔹 Dummy patients data (frontend only)
+  useEffect(() => {
+    const dummyPatients = [
+      { id: 1, name: "Ali Raza", gender: "Male", phone: "03001234567" },
+      { id: 2, name: "Sara Khan", gender: "Female", phone: "03119876543" },
+      { id: 3, name: "Ahmed Malik", gender: "Male", phone: "03215558888" },
+      { id: 4, name: "Fatima Noor", gender: "Female", phone: "03451231234" },
+    ];
+    setPatients(dummyPatients);
+  }, []);
+
+  // 🔹 Populate data in edit mode
+  useEffect(() => {
+    if (editMode && existingData) {
+      setFormData({
+        patientId: existingData.patientId || "",
+        patientName: existingData.patient || "",
+        gender: existingData.gender || "",
+        phone: existingData.phone || "",
+        date: existingData.date || "",
+        startTime: existingData.startTime || "",
+        endTime: existingData.endTime || "",
+        bed: existingData.bed || "",
+        type: existingData.type || "Dialysis",
+      });
+      setStep(2); // Go to step 2 directly
+    }
+  }, [editMode, existingData]);
+
+  // 🔍 Search by ID or Name
   const handleSearch = (e) => {
     const query = e.target.value.toLowerCase();
     setSearchQuery(query);
-    const filtered = patients.filter((p) =>
-      p.name.toLowerCase().includes(query)
+
+    const filtered = patients.filter(
+      (p) =>
+        p.name.toLowerCase().includes(query) ||
+        p.id.toString().includes(query)
     );
     setFilteredPatients(filtered);
   };
 
-  // 🧩 When selecting a patient
+  // 🧩 Select patient
   const selectPatient = (patient) => {
     setFormData((prev) => ({
       ...prev,
@@ -77,13 +136,16 @@ useEffect(() => {
 
   return (
     <Modal show={show} onHide={handleClose} centered size="lg">
-        <Modal.Header closeButton>
-        <Modal.Title>{editMode ? "Edit Appointment" : "New Appointment"}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
+      <Modal.Header closeButton>
+        <Modal.Title>
+          {editMode ? "Edit Appointment" : "New Appointment"}
+        </Modal.Title>
+      </Modal.Header>
+
+      <Modal.Body>
         <ProgressBar now={progressValue} className="mb-3" />
 
-        {/* STEP 1 - Patient Info (Search + Select) */}
+        {/* STEP 1 - Select Patient */}
         {step === 1 && (
           <>
             <h5 className="fw-bold mb-3">Select Patient</h5>
@@ -92,26 +154,53 @@ useEffect(() => {
                 <Form.Label>Search Patient</Form.Label>
                 <Form.Control
                   type="text"
-                  placeholder="Search by name..."
+                  placeholder="Search by name or ID..."
                   value={searchQuery}
                   onChange={handleSearch}
                 />
+
                 {searchQuery && filteredPatients.length > 0 && (
                   <div
-                    className="border position-absolute bg-white w-100 shadow-sm"
-                    style={{ zIndex: 10, maxHeight: "150px", overflowY: "auto" }}
+                    className="border position-absolute bg-white w-100 shadow-sm rounded"
+                    style={{
+                      zIndex: 10,
+                      maxHeight: "180px",
+                      overflowY: "auto",
+                    }}
                   >
                     {filteredPatients.map((p) => (
                       <div
                         key={p.id}
-                        className="p-2 hover-bg-light cursor-pointer"
+                        className="p-2 cursor-pointer hover-bg-light"
                         onClick={() => selectPatient(p)}
                       >
-                        {p.name} — <small className="text-muted">{p.id}</small>
+                        <strong>{p.name}</strong> —{" "}
+                        <small className="text-muted ms-2">ID: {p.id}</small>
                       </div>
                     ))}
                   </div>
                 )}
+              </Form.Group>
+
+              {/* Optional Dropdown Fallback */}
+              <Form.Group className="mb-3">
+                <Form.Label>Select from List (Optional)</Form.Label>
+                <Form.Select
+                  onChange={(e) => {
+                    const selected = patients.find(
+                      (p) => p.id === Number(e.target.value)
+                    );
+                    if (selected) selectPatient(selected);
+                  }}
+                  value={formData.patientId}
+                >
+                  <option value="">-- Select Patient --</option>
+                  {patients.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} (ID: {p.id})
+                    </option>
+                  ))}
+                </Form.Select>
               </Form.Group>
 
               {formData.patientId && (
@@ -207,7 +296,8 @@ useEffect(() => {
             <h5 className="fw-bold mb-3">Confirm Appointment</h5>
             <ul className="list-group">
               <li className="list-group-item">
-                <strong>Patient:</strong> {formData.patientName} ({formData.patientId})
+                <strong>Patient:</strong> {formData.patientName} (
+                {formData.patientId})
               </li>
               <li className="list-group-item">
                 <strong>Phone:</strong> {formData.phone}
@@ -216,7 +306,8 @@ useEffect(() => {
                 <strong>Date:</strong> {formData.date}
               </li>
               <li className="list-group-item">
-                <strong>Time:</strong> {formData.startTime} - {formData.endTime}
+                <strong>Time:</strong> {formData.startTime} -{" "}
+                {formData.endTime}
               </li>
               <li className="list-group-item">
                 <strong>Chair:</strong> {formData.bed}
@@ -228,6 +319,7 @@ useEffect(() => {
           </>
         )}
       </Modal.Body>
+
       <Modal.Footer>
         {step > 1 && (
           <Button variant="secondary" onClick={prevStep}>
@@ -236,14 +328,14 @@ useEffect(() => {
         )}
         {step < 3 ? (
           <Button
-            variant="teal"
+            variant="success"
             onClick={nextStep}
             disabled={step === 1 && !formData.patientId}
           >
             Next
           </Button>
         ) : (
-          <Button variant="teal" onClick={onSave}>
+          <Button variant="success" onClick={onSave}>
             Confirm & Save
           </Button>
         )}
